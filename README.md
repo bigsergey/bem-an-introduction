@@ -145,8 +145,8 @@ Here, not only is CamelCase used, but you also separate blocks from elements usi
 
 ### Prefixes
 You can use prefixes in your block names:
-* b – common blocks (b-menu, b-message), name of the block is preceded by “b”
-* l – layouts (grid)
+* b – common blocks (b-menu, b-message), name of the block is preceded by 'b”
+* l'– layouts (grid)
 * js – javascript prefix (I personally use it to mark the fact that a given element uses javascript, so its removal may cause incorrect behavior.)
 * qa – used sometimes for testing the views
 * This list can be expanded, of course, depending on the project.
@@ -191,4 +191,163 @@ Below you will see a simple implementation of user list with three users. Each b
 }
 ```
 
-CodePen [Demo](http://codepen.io/bigsergey/pen/vLWxaJ).
+CodePen [demo](http://codepen.io/bigsergey/pen/vLWxaJ).
+
+## BEM vs Bootstrap/Foundation/Sematic-UI/etc.
+The difference between BEM and Bootstrap/Foundation/Sematic-UI/etc. is that the latter are the collections of ready-made blocks. BEM, on the other hand, is a methodology that allows you to create the architecture based on independent blocks. By the way, Google’s [Material Design](http://www.getmdl.io/) Lite was built using BEM naming rules.
+```html
+<!-- Colored FAB button -->
+<button class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored">
+  <i class="material-icons">add</i>
+</button>
+```
+
+## BEM: The Good Parts
+### How to fix .login__form__user-name__input?
+That is one of the most common mistakes caused by not properly understanding BEM guidelines. You are not able to benefit from BEM’s advantages when the elements are related to each other and not to a block. Take a look at this piece of code:
+```html
+<div class="block">
+    <div class="block__elem1">
+        <div class="block__elem1__elem2"></div>
+    </div>
+</div>
+```
+It can be refactored in two ways – you may create a new block or change the block’s structure:
+```html
+<div class="block1">
+    <div class="block1__elem1 block2">
+        <div class="block2__elem1"></div>
+    </div>
+</div>
+ 
+<!-- OR -->
+ 
+<div class="block1">
+    <div class="block1__elem1">
+        <div class="block1__elem2"></div>
+    </div>
+</div>
+```
+In both cases, the elem1 is no longer dependent on elem2, which makes the code easier to maintain and doesn’t cause problems when you have to move elem2. The rule of thumb here is: whenever you feel like you need to create an element within another element, create a new block instead.
+
+### Good structure, bad CSS styles
+
+Let’s assume we have a following block:
+```html
+<div class="block">
+    <div class="block__element">
+    </div>
+</div>
+```
+It is a perfectly fine structure according to BEM. The styles, however, look like that:
+```css
+.block .block__element {
+  ...
+}
+```
+The main idea behind BEM is the independence of blocks. Nested selectors increase code coupling and make it more difficult to reuse it which, of course, is not what BEM should be about. Styles should look like this:
+```css
+.block {
+  ...
+}
+.block__element {
+  ...
+}
+```
+
+### Combined Selectors
+You may wonder whether the need of preceding each modifier with a block name isn’t an overkill.
+```html
+<div class="block mod"></div>
+<!-- instead -->
+<div class="block block--mod"></div>
+```
+In fact, there are good reasons for sticking to the block–mod structure:
+* Namespace. Blocks, elements and modifiers are unique, which helps to limit the influence of one block’s styles on another.
+* Mixes. When you mix two different blocks on a single DOM node you need to know which block is a given modifier referring to.
+```html
+<div class="menu__item button active">Button is active or menu item?</div>
+```
+* Code search. When you search for a modifier called 'active' you will probably find several such instances in your code but searching for, let’s say, 'button–active' will narrow down your search significantly.
+
+### Global modifier
+
+Imagine you need a global 'hidden' style and you create a 'hidden' class.
+```css
+/* global modifier */
+.hidden { display: none }
+ 
+/* block definition */
+.block { display: block }
+```
+At first sight, everything looks OK, so you create an html block and apply the global modifier.
+```html
+<div class="block hidden">
+    you still see me
+</div>
+```
+The issue is that the block selector is equally specific as the global modifer and, additionally, it appears under it in the code. As a result the block overwrites the modifier. Of course, we could use !important in the modifier’s definition, but this could be even more troublesome (more about these issues [here](http://stackoverflow.com/questions/3706819/what-are-the-implications-of-using-important-in-css)).
+
+The next problem of global modifiers is connected to BEM-entities mixing.
+```html
+<div class="block mod1 mod2">
+    you have no control over the block
+</div>
+```
+In this case you lose control over the block and you may end up with unexpected behavior when you use this block in another project.
+
+### BEM & SASS
+
+Sass allows you to write CSS styles in different manners. The code presented below can be generated using Sass and “&”, which refers to the current parent selector.
+```css
+.button { display: block; }
+.button__text { font-weight: bold; }
+.button__text--active { color: red; }
+```
+SCSS code:
+```scss
+.button {
+  display: block;
+  &__text {
+    font-weight: bold;
+    &--active {
+      color: red;
+    }
+  }
+}
+```
+This kind of code takes less space and is convenient to write (no need to type names for blocks, elements or modifiers). On the other hand, however, it will be much more difficult to find a given selector in styles (button__button–active vs &–active).
+
+Another thing is that Sass enables you to use the @extend directive. Its function is to apply one selector’s features into another (see [Sass docs](http://sass-lang.com/documentation/file.SASS_REFERENCE.html#extend) for more information). As a result we would have:
+```html
+<div class="block--mod"></div>
+<!-- instead -->
+<div class="block block--mod"></div>
+```
+It seems to be just fine, there is less code for HTML, the block’s styles are applied to the modifier using @extend. This approach has flaws when it comes to CSS (the styles are oversized):
+```css
+/* good */
+.menu,
+.menu--hidden,
+.menu--other-modifier {
+ // base styles
+}
+ 
+/* better */
+.menu {
+ // base styles
+}
+.menu--hidden {...}
+.menu--other-modifier {...}
+```
+Yet another issue arises when we want to apply two modifiers at the same time – the styles will apply twice as well.
+
+### CSS property name in a modifier name – .block__element–background-color_red
+
+When changing a component, you need to alter not only the CSS code but also the selectors’ names. For example, when the background color changes, then you have to edit the HTML code, the styles and, possibly, even JS. Once you add different features to the modifier, its name no longer makes sense.
+
+### Don’t be afraid of long class names
+
+From [Serge Herkül’s Twitter](https://twitter.com/_sergeh), frontend developer at Teamweek:
+> Focus on self documenting class names. Don’t be afraid of long class names! His advice – “Use long, descriptive class names over short names that don’t document themselves.”
+
