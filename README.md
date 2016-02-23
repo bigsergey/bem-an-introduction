@@ -351,3 +351,15 @@ When changing a component, you need to alter not only the CSS code but also the 
 From [Serge Herkül’s Twitter](https://twitter.com/_sergeh), frontend developer at Teamweek:
 > Focus on self documenting class names. Don’t be afraid of long class names! His advice – “Use long, descriptive class names over short names that don’t document themselves.”
 
+## Should you start using BEM?
+
+Personally, I cannot recommend using BEM enough. One of the most important advantages is that you don’t have to introduce any global changes in your project before you start using BEM. All you need to do is to create a new component, following BEM rules. Trust me, BEM is very forgiving, if you can’t get it right from the get go, nothing terrible will happen. Aren’t you convinced by now?
+
+Stay BEMed and let me know in the comments if you have any extra questions.
+
+Link to [article](http://blog.apptension.com/2016/02/03/introduction-to-bem/) on the [Apptension blog](http://blog.apptension.com/).
+
+Link to my [LET'S WRITE BEM CORRECTLY](http://slides.com/sergeybolshov/bem#/) presentation.
+
+Thank you [@aniakrajenka](https://twitter.com/aniakrajenka) for help with english. 
+
