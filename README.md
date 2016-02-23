@@ -57,3 +57,138 @@ Modifier is a BEM entity that defines the state, appearance and behavior of bloc
 Mix is a way of hosting different BEM sequences on a single DOM node. Owing to that you can:
 * combine styles and behavior of different BEM entities (no code duplication),
 * create new components based on the existing entities.
+
+## Naming Conventions
+
+The idea behind various BEM naming conventions is to make them as informative and easy to understand as possible. We’ll take a look at several sets of naming rules:
+
+### Yandex style
+
+* **Block**
+```html
+<div class="block-name"></div>
+```
+The block name consists of lowercase Latin characters, separate words are divided with hyphens:
+```
+<!-- html -->
+<div class="menu">...</div>
+ 
+/* css styles */
+.menu { color: red }
+```
+
+* **Element**
+```html
+<div class="block-name__element-name"></div>
+```
+The name of the element should be preceded by a double underscore.
+```
+<!-- html -->
+<div class="menu">
+    ...
+    <span class="menu__item"></span>
+</div>
+ 
+/* css styles */
+.menu__item { color: red; }
+```
+**REMEMBER!** It is not recommended to create elements within elements like: block_element1__element2, the structure of a block should be flat. The DOM’s block, however, can be nested.
+CSS:
+```css
+.block {}
+.block__element1 {}
+.block__element2 {}
+```
+HTML:
+```html
+<div class="block">
+  <div class="block__element1">
+    <div class="block__element2"></div>
+  </div>
+</div>
+```
+
+*  **Modifier**
+```html
+<div class="block-name__element-name_mod-name_mod-val"></div>
+```
+Modifiers are preceded by single underscores. Yandex provides us with two schemes:
+* for Boolean modifiers (these are actually just the name modifiers that could be described with a single word),
+* for key-value type modifiers (e.g. for seasonal themes).
+```
+<!-- html -->
+<div class="menu menu_hidden">...</div>
+<div class="menu menu_theme_xmas">...</div>
+ 
+/* css styles */
+.menu_hidden { display: none }
+.menu_theme_xmas { color: green; }
+```
+
+### Harry Roberts’ Style
+Harry Roberts thought that marking the modifer with a single underscore can be difficult to distinguish from the elements with double underscore. In his convention, modifier is preceded by a double hyphen which makes it more readable:
+```html
+<div class="block-name__element-name--state_active"><div>
+```
+
+### CamelCase Style
+You can use CamelCase spelling instead of hyphens for Blocks and Elements:
+```html
+<div class="blockName__elementName--state_active"></div>
+```
+
+### 'Sans underscore' Style
+Here, not only is CamelCase used, but you also separate blocks from elements using single hyphens (modifiers are separated by double hyphens).
+```html
+<div class="blockName-elementName--modName--modVal"></div>
+```
+
+### Prefixes
+You can use prefixes in your block names:
+* b – common blocks (b-menu, b-message), name of the block is preceded by “b”
+* l – layouts (grid)
+* js – javascript prefix (I personally use it to mark the fact that a given element uses javascript, so its removal may cause incorrect behavior.)
+* qa – used sometimes for testing the views
+* This list can be expanded, of course, depending on the project.
+
+### Naming Conventions in Practice
+Below you will see a simple implementation of user list with three users. Each block consists of user’s name and age, additionally, there are three types of users (inactive, regular, premium). These types are changed using modifiers:
+
+```html
+<div class="user user--inactive">
+  <div class="user__name">Inactive user</div>
+  <div class="user__age">16 years old</div>
+</div>
+<div class="user">
+  <div class="user__name">Normal user</div>
+  <div class="user__age">18 years old</div>
+</div>
+<div class="user user--premium">
+  <div class="user__name">Premium user</div>
+  <div class="user__age">18 years old</div>
+</div>
+```
+
+```css
+.user {
+  font-size: 25px;
+  width: 200px; 
+  margin:0px auto;
+}
+
+.user--inactive {
+  opacity: 0.5;
+}
+.user--premium {
+  color: red;
+}
+
+.user__name {
+  font-weight: bold;
+}
+.user__age {
+ font-style: italic; 
+}
+```
+
+CodePen [Demo](http://codepen.io/bigsergey/pen/vLWxaJ).
